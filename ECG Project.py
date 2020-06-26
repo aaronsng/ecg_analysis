@@ -8,8 +8,8 @@ from scipy.signal import firwin
 
 LEAD = 1
 
-record = wfdb.rdsamp('st-petersburg-incart-12-lead-arrhythmia-database-1.0.0/files/I01')
-annotation = wfdb.rdann('st-petersburg-incart-12-lead-arrhythmia-database-1.0.0/files/I01', 'atr')
+record = wfdb.rdsamp('incartdb/1.0.0/I01')
+annotation = wfdb.rdann('incartdb/1.0.0/I01', 'atr')
 t = np.copy(np.array(record[0][:, LEAD]))
 b = firwin(513, 0.5, width=0.05, pass_zero='highpass')
 filtered = hp.remove_baseline_wander(t, 257, 0.05) #high pass filter
@@ -21,10 +21,20 @@ filtered_t = np.array([np.convolve(xi, b, mode='valid') for xi in t])
 wd, m = hp.process(hp.scale_data(filtered), sample_rate=257)
 
 plt.figure(figsize=(12, 4))
-plot_object = hp.plotter(wd, m)
+#plot_object = hp.plotter(wd, m)
+for i in range(100, 200, 10):
+    beat_1 = wd['RR_indices'][i]
+    beat_2 = wd['RR_indices'][i + 1]
 
-for measure in m.keys():
-    print('%s: %f' % (measure, m[measure]))
+    start_1 = beat_1[0]
+    end_1 = beat_1[1]
 
-
-
+    start_2 = beat_2[0]
+    end_2 = beat_2[1]
+    ecg1 = filtered[int((end_1 + start_1) / 2):int((end_2 + start_2) / 2)]
+    plt.plot(ecg1)
+    plt.show()
+# # print(wd['RR_indices'][100]
+# print(wd.keys())
+# for measure in m.keys():
+#     print('%s: %f' % (measure, m[measure]))
